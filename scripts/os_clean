@@ -1,0 +1,23 @@
+#!/bin/bash
+
+printf "
+Let's tidy this place up a bit, shall we?
+#########################################
+
+"
+sudo apt-get clean
+sudo apt-get autoremove --purge -y
+sudo rm -rf \
+    /var/lib/apt/lists/* \
+    /var/cache/apt/archives/*.deb \
+    /var/cache/apt/archives/partial/*.deb \
+    /var/cache/apt/*.bin \
+    /tmp/* \
+    /var/tmp/*
+
+printf "
+
+####################
+DONE cleaning
+"
+

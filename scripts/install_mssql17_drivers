@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# ms sql server odbc
+
+printf "
+Installing Microsoft SQL Server ODBC v17 and JDBC v7 Drivers in /opt/microsoft/
+###############################################################################
+
+"
+
+# Build Deps
+sudo apt-get update -qq
+sudo apt-get install -y curl wget apt-transport-https gnupg2
+
+# MS SQL Server Drivers
+cd /tmp && curl -s https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+
+# Add PPAs for Ubuntu 16.04/18.04/20.04
+export VERSION_ID=$(grep VERSION_ID /etc/os-release | cut -d'=' -f2 | sed 's/"//g')
+#sudo curl -s https://packages.microsoft.com/config/ubuntu/$VERSION_ID/prod.list > /etc/apt/sources.list.d/mssql-release.list
+
+sudo apt-get update -qq
+sudo env ACCEPT_EULA=Y apt-get install -y msodbcsql17
+
+# optional: for bcp and sqlcmd
+sudo env ACCEPT_EULA=Y apt-get install -y mssql-tools
+sudo bash -c "echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh"
+sudo chmod +x /etc/profile.d/mssql.sh
+export PATH="$PATH:/opt/mssql-tools/bin"
+
+# optional: for unixODBC development headers
+sudo apt-get install -y unixodbc-dev
+
+# Get JDBC Driver
+cd /opt/microsoft && mkdir -p msjdbcsql7 && cd msjdbcsql7
+wget -q "https://github.com/Microsoft/mssql-jdbc/releases/download/v7.2.1/mssql-jdbc-7.2.1.jre8.jar"
+
+# config file
+cat << EOF >> /etc/odbcinst.ini
+
+[ODBC Driver 17 for SQL Server]
+Description=Microsoft ODBC Driver 17 for SQL Server
+Driver=/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.2.so.0.1
+Threading=1
+UsageCount=1
+
+[JDBC Driver 7 for SQL Server]
+Description=Microsoft JDBC Driver 7 for SQL Server
+Driver=/opt/microsoft/msjdbcsql7/mssql-jdbc-7.2.1.jre8.jar
+
+EOF
+
+printf "
+
+####################
+DONE
+
+When in doubt about installed sql drivers, check 'cat /etc/odbcinst.ini'
+"
+

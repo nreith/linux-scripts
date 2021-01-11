@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# teradata drivers v16.20
+
+printf "
+Installing Teradata ODBC v16.20 and JDBC v4 Drivers in /opt/teradata/
+#####################################################################
+
+"
+
+sudo apt-get -qq update
+sudo apt-get install -y -qq curl apt-transport-https unzip
+
+# Teradata ODBC
+cd /tmp
+wget -q "https://raw.githubusercontent.com/nreith/linux-scripts/main/large-files/teradata-sql/tdodbc1620__ubuntu_indep.16.20.00.90.tar.gz" -O "td.tar.gz"
+tar -xf td.tar.gz
+sudo apt-get -f install -y -qq --no-install-recommends lib32stdc++6 lib32gcc1 libc6-i386
+cd /tmp/tdodbc1620
+sudo dpkg -i tdodbc1620*noarch.deb
+
+# Teradata JDBC
+cd /tmp
+mkdir -p /opt/teradata
+mkdir -p /opt/teradata/jdbc
+wget -q "https://raw.githubusercontent.com/nreith/linux-scripts/main/large-files/teradata-sql/TeraJDBC__indep_indep.16.20.00.13.zip" -O "td.zip"
+unzip -oq td.zip
+sudo mv terajdbc4.jar /opt/teradata/jdbc/
+
+cat << EOF >> /etc/odbcinst.ini
+
+[Teradata ODBC Driver 16.20]
+Description=Teradata Database ODBC Driver 16.20
+Driver=/opt/teradata/client/ODBC_64/lib/tdataodbc_sb64.so
+# Note: Currently, Data Direct Driver Manager does not support Connection Pooling feature.
+
+[Teradata JDBC Driver 4] 
+Description=Teradata Database JDBC Driver 4
+Driver=/opt/teradata/jdbc/terajdbc4.jar
+
+EOF
+
+printf "
+
+####################
+DONE
+
+When in doubt about installed sql drivers, check 'cat /etc/odbcinst.ini'
+"
+

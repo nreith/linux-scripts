@@ -1,0 +1,68 @@
+#!/bin/bash
+
+printf "
+Installing Oracle ODBC and JDBC Drivers v12.2 in /opt/oracle/
+#############################################################
+
+"
+sudo apt-get update -qq > /dev/null
+sudo apt-get install -yq curl apt-transport-https unzip
+https://raw.githubusercontent.com/nreith/linux-scripts/main/large-files/oracle-sql/
+# Oracle Instantclient
+cd /tmp
+wget -q "https://raw.githubusercontent.com/nreith/linux-scripts/main/large-files/oracle-sql/instantclient-basic-linux.x64-12.2.0.1.0.zip" -O "instantclient-basic.zip"
+wget -q "https://raw.githubusercontent.com/nreith/linux-scripts/main/large-files/oracle-sql/instantclient-jdbc-linux.x64-12.2.0.1.0.zip" -O "instantclient-jdbc.zip"
+wget -q "https://raw.githubusercontent.com/nreith/linux-scripts/main/large-files/oracle-sql/instantclient-odbc-linux.x64-12.2.0.1.0.zip" -O "instantclient-odbc.zip"
+wget -q "https://raw.githubusercontent.com/nreith/linux-scripts/main/large-files/oracle-sql/instantclient-sdk-linux.x64-12.2.0.1.0.zip" -O "instantclient-sdk.zip"
+wget -q "https://raw.githubusercontent.com/nreith/linux-scripts/main/large-files/oracle-sql/instantclient-sqlplus-linux.x64-12.2.0.1.0.zip" -O "instantclient-sqlplus.zip"
+
+sudo apt-get install -y --no-install-recommends libaio1
+
+for f in instantclient*.zip
+do
+    unzip -oq $f
+done
+
+mkdir -p /opt/oracle/
+sudo cp -r instantclient_12_2 /opt/oracle/ && rm -R /tmp/instantclient*
+
+cd /opt/oracle/instantclient_12_2
+
+sudo ln -sf /opt/oracle/instantclient_12_2/libclntsh.so.12.1 /opt/oracle/libclntsh.so
+sudo ln -sf /opt/oracle/instantclient_12_2/libocci.so.12.1 /opt/oracle/libocci.so
+sudo ln -sf /opt/oracle/instantclient_12_2/libociei.so /opt/oracle/libociei.so
+sudo ln -sf /opt/oracle/instantclient_12_2/libnnz12.so /opt/oracle/libnnz12.so
+
+export ORACLE_BASE=/usr/lib/instantclient_12_2
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/oracle/instantclient_12_2
+export TNS_ADMIN=/opt/oracle/instantclient_12_2
+export ORACLE_HOME=/opt/oracle/instantclient_12_2
+
+sudo tee /etc/profile.d/oracle.sh <<EOF
+export ORACLE_BASE=/usr/lib/instantclient_12_2
+export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/opt/oracle/instantclient_12_2
+export TNS_ADMIN=/opt/oracle/instantclient_12_2
+export ORACLE_HOME=/opt/oracle/instantclient_12_2
+EOF
+
+sudo chmod +x /etc/profile.d/oracle.sh
+
+sudo tee -a /etc/odbcinst.ini <<EOF
+
+[Oracle 12.2 ODBC driver]
+Description=Oracle ODBC driver for Oracle 12.2
+Driver = /opts/oracle/instantclient_12_2/ojdbc8.jar
+
+[Oracle 12.2 JDBC driver]
+Description=Oracle JDBC driver for Oracle 12.2
+Driver = /opts/oracle/instantclient_12_2/orai18n.jar
+
+EOF
+
+printf "
+
+####################
+DONE
+
+When in doubt about installed sql drivers, check 'cat /etc/odbcinst.ini'
+"

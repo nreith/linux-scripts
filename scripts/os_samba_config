@@ -1,0 +1,48 @@
+#!/bin/bash
+
+printf "
+Configuring your Linux OS for samba sharing
+###########################################
+
+"
+sudo apt-get install -y samba
+sudo apt-get install -y samba-server
+
+# config
+cd /tmp
+cat << EOF | sudo tee -a /etc/samba/smb.conf
+[homes]
+comment = Home Directories
+browseable = no
+read only = no
+create mask = 0700
+directory mask = 0700
+valid users = %S
+EOF
+
+sudo systemctl restart nmbd
+
+echo "xkcd123\nxkcd123\n" | sudo smbpasswd -a -s $USER
+
+printf "
+
+#########################
+DONE setting up samba
+
+You will need to create your user and password with:
+
+'sudo smbpasswd -a $USER'
+
+You can connect remotely with the following details:
+
+ip address: $(hostname -I | cut -d ' ' -f 1)
+user: $USER
+password: whatever you entered.
+
+
+On Windows, go to Map a Network Drive  in File Explorer and use:
+
+'\\\\$(hostname -I | cut -d ' ' -f 1)\\$USER'
+
+with and check the box for use different credentials. 
+"

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+printf "
+Installing Azure Data Studio
+############################
+
+"
+
+sudo apt-get -y install libxss1 \
+	libgconf-2-4 \
+	libunwind8 \
+	libnotify4 \
+	libnss3 \
+	gnupg \
+    libxkbfile1 \
+    libsecret-1-0 \
+    libgtk-3-0 \
+    wget \
+    apt-transport-https
+cd /tmp
+wget https://azuredatastudiobuilds.blob.core.windows.net/releases/1.17.1/azuredatastudio-linux-1.17.1.deb
+sudo dpkg -i azuredatastudio-linux-*.deb
+
+printf "
+
+####################
+DONE
+"
+

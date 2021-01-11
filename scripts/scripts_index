@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo "Available linux-scripts:"
+echo ""
+
+ls -l /usr/local/bin/install_* /usr/local/bin/os_* /usr/local/bin/scripts_index \
+	| cut -d / -f 5- | sed 's/ /\n/g' | sed 's/^/    /g'
+
+echo ""
+

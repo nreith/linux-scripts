@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# common
+
+printf "
+Shell tools. Installing the usual suspects
+##########################################
+
+apt-utils
+bash-completion
+build-essential
+default-jre
+software-properties-common
+ca-certificates
+curl wget apt-transport-https
+dialog
+git git-lfs colordiff
+gnupg gnupg2
+file
+iputils-ping
+nano
+neovim
+python3-pip
+rsync
+tmux
+sudo
+ssh openssh-server
+zip unzip 
+####################
+
+"
+
+sudo apt-get update -qq
+sudo apt-get install -yq --no-install-recommends \
+    apt-utils \
+    bash-completion \
+    build-essential \
+    default-jre \
+    software-properties-common \
+    ca-certificates \
+    curl wget apt-transport-https \
+    dialog \
+    git git-lfs colordiff \
+    gnupg gnupg2 \
+    file \
+    iputils-ping \
+    nano \
+    neovim \
+    python3-pip \
+    rsync \
+    tmux \
+    sudo \
+    ssh openssh-server \
+    zip unzip
+
+printf "
+
+####################
+DONE
+"
+

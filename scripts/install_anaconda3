@@ -1,0 +1,55 @@
+#!/bin/bash
+
+export CONDA_DIR=/opt/conda
+export CONDA_VERSION=2020.02
+export CONDA_MD5=17600d1f12b2b047b62763221f29f2bc
+export LANG=C.UTF-8 LC_ALL=C.UTF-8
+export PATH=$CONDA_DIR/bin:$PATH 
+export CONDA_URL=https://repo.anaconda.com/archive/Anaconda3-2020.02-Linux-x86_64.sh
+
+printf "
+Installing Anaconda Version: '$CONDA_VERSION' in /opt/conda
+This makes it available to everyone in multi-user situations.
+This will update Anaconda to the latest version.
+But for other versions of Anaconda,
+   see here: https://repo.anaconda.com/archive
+#############################################################
+
+"
+
+# Dependencies
+sudo apt-get update --fix-missing -qq
+sudo apt-get install -y -q \
+	wget \
+	apt-transport-https \
+	libgl1-mesa-glx \
+	libegl1-mesa \
+	libxrandr2 \
+	libxss1 \
+	libxcursor1 \
+	libxcomposite1 \
+	libasound2 \
+	libxi6 \
+	libxtst6 \
+	ca-certificates
+
+# Install
+cd /tmp
+wget --quiet $CONDA_URL -O installconda.sh
+sudo bash installconda.sh -b -p /opt/conda
+rm /tmp/installconda.sh
+/opt/conda/condabin/conda init bash
+sudo ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh
+source ~/.bashrc
+sudo apt-get clean
+sudo chown -R $USER:$USER ~/.conda /opt
+. /opt/conda/etc/profile.d/conda.sh
+conda update -y conda
+conda update -y anaconda
+
+printf "
+
+####################
+DONE
+"
+

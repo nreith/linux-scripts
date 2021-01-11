@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# azure cli - using convenience script located here:
+#   https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+
+printf "
+Installing Azure cli
+####################
+
+"
+
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash 
+
+printf "
+
+####################
+DONE
+"
+

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ `id -u` -ne 0 ]
+  then echo "Error: needs to be run as sudo!!"
+  exit 1
+fi
+
+# reset (turn off) all proxies
+unset_proxy ()
+{
+echo "resetting proxy.."
+gsettings set org.gnome.system.proxy mode none
+truncate -s 0 /etc/profile.d/proxy.sh
+sed -i.bak "/Acquire::/d" /etc/apt/apt.conf
+sed -i.bak "/Acquire::/,+10d" /etc/apt/apt.conf.d/70debconf
+snap unset system proxy.http
+snap unset system proxy.https
+sed -i "/proxy/d" /etc/environment
+sed -i "/PROXY/d" /etc/environment
+sed -i "/^use_proxy\=on/,+6d" /etc/wgetrc
+if hash git 2>/dev/null; then
+  git config --global --unset http.proxy
+  git config --global --unset https.proxy
+fi
+if [ -a /etc/systemd/system/docker.service.d/proxy.conf ]; then
+  rm -rf /etc/systemd/system/docker.service.d/proxy.conf
+fi
+# Restart docker service, if it exists.    
+if service --status-all | grep -Fq 'docker'; then
+  systemctl daemon-reload
+  systemctl restart docker.service
+fi
+echo "done"
+}
+
+# unset_proxy
+unset_proxy

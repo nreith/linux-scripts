@@ -1,0 +1,27 @@
+#!/bin/bash
+
+printf "
+Setting up ssh so you can remotely log into this machine/vm/container
+#####################################################################
+"
+
+sudo apt-get install -y ssh openssh-server
+cat << EOF | sudo tee -a /etc/ssh/sshd_config
+Port 2222
+PasswordAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+EOF
+
+sudo systemctl restart ssh
+
+printf "
+
+####################
+DONE configuring ssh server
+
+You can connect with the following connection string (without quotes):
+
+'ssh -p 2222 $USER@$(hostname -I | cut -d ' ' -f 1)'
+"
+
